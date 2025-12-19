@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎄 Đếm ngược Giáng Sinh</title>
+
+<meta name="theme-color" content="#c62828">
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:url('https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1600&q=80') center/cover fixed;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+.card{
+  background:linear-gradient(135deg,rgba(255,0,0,.35),rgba(0,128,0,.35));
+  padding:24px;
+  border-radius:16px;
+  max-width:520px;
+  width:100%;
+  text-align:center;
+  animation:lights 2s infinite alternate;
+}
+@keyframes lights{
+  0%{box-shadow:0 0 10px red}
+  50%{box-shadow:0 0 20px gold}
+  100%{box-shadow:0 0 10px green}
+}
+.timer{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+.box{
+  background:rgba(255,255,255,.15);
+  border-radius:12px;
+  padding:16px 8px;
+}
+.num{font-size:2rem;font-weight:bold}
+.label{font-size:.9rem}
+
+#tree{font-size:64px;animation:shake 2s infinite}
+@keyframes shake{
+  0%{transform:rotate(0)}
+  25%{transform:rotate(2deg)}
+  75%{transform:rotate(-2deg)}
+  100%{transform:rotate(0)}
+}
+
+.snowflake{
+  position:fixed;
+  top:-10px;
+  color:white;
+  animation:fall linear;
+}
+@keyframes fall{to{transform:translateY(110vh)}}
+
+.firework{
+  position:fixed;
+  font-size:28px;
+  animation:boom 1.2s ease-out forwards;
+}
+@keyframes boom{
+  0%{transform:scale(0);opacity:1}
+  100%{transform:scale(2.5);opacity:0}
+}
+
+#santa{
+  position:fixed;
+  top:15%;
+  left:-300px;
+  font-size:56px;
+  animation:santaFly 18s linear infinite;
+}
+@keyframes santaFly{to{left:110%}}
+</style>
+</head>
+
+<body>
+
+<audio id="bgm" loop src="https://cdn.pixabay.com/download/audio/2022/10/30/audio_4e35b88b36.mp3"></audio>
+
+<div class="card">
+  <button id="musicBtn">🔊 Bật nhạc</button>
+  <h1>🎄 Đếm ngược Giáng Sinh</h1>
+  <div id="tree">🎄</div>
+
+  <div class="timer">
+    <div class="box"><div id="days" class="num">0</div><div class="label">Ngày</div></div>
+    <div class="box"><div id="hours" class="num">0</div><div class="label">Giờ</div></div>
+    <div class="box"><div id="minutes" class="num">0</div><div class="label">Phút</div></div>
+    <div class="box"><div id="seconds" class="num">0</div><div class="label">Giây</div></div>
+  </div>
+
+  <div id="status"></div>
+  <footer>✨ Chúc bạn Giáng Sinh vui vẻ ✨</footer>
+</div>
+
+<div id="santa">🎅🦌🦌🦌</div>
+
+<script>
+/* ===== TARGET DATE ===== */
+const TARGET = (() => {
+  const now = new Date();
+  let d = new Date(now.getFullYear(), 11, 25, 0, 0, 0);
+  if (d < now) d.setFullYear(d.getFullYear() + 1);
+  return d;
+})();
+
+let fired = false;
+
+/* ===== COUNTDOWN ===== */
+function update() {
+  const now = new Date();
+  const diff = TARGET - now;
+
+  if (diff <= 0) {
+    document.querySelector(".card").innerHTML =
+      "<h1>🎄 Giáng Sinh đã đến!</h1><p>Chúc mừng Giáng Sinh!</p>";
+    fireworks();
+    return;
+  }
+
+  days.textContent = Math.floor(diff / 86400000);
+  hours.textContent = Math.floor(diff / 3600000) % 24;
+  minutes.textContent = Math.floor(diff / 60000) % 60;
+  seconds.textContent = Math.floor(diff / 1000) % 60;
+
+  status.textContent = "⏰ " + now.toLocaleTimeString();
+}
+update();
+setInterval(update, 1000);
+
+/* ===== FIREWORK ===== */
+function fireworks() {
+  if (fired) return;
+  fired = true;
+  for (let i = 0; i < 40; i++) {
+    const f = document.createElement("div");
+    f.className = "firework";
+    f.textContent = "🎆";
+    f.style.left = Math.random() * innerWidth + "px";
+    f.style.top = Math.random() * innerHeight + "px";
+    document.body.appendChild(f);
+    setTimeout(() => f.remove(), 1200);
+  }
+}
+
+/* ===== SNOW ===== */
+setInterval(() => {
+  const s = document.createElement("div");
+  s.className = "snowflake";
+  s.textContent = "❄";
+  s.style.left = Math.random() * innerWidth + "px";
+  s.style.fontSize = 10 + Math.random() * 10 + "px";
+  s.style.animationDuration = 5 + Math.random() * 5 + "s";
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 10000);
+}, 200);
+
+/* ===== MUSIC ===== */
+musicBtn.onclick = () => {
+  if (bgm.paused) {
+    bgm.play();
+    musicBtn.textContent = "🔇 Tắt nhạc";
+  } else {
+    bgm.pause();
+    musicBtn.textContent = "🔊 Bật nhạc";
+  }
+};
+</script>
+
+</body>
+</html>
