@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🎄 Đếm ngược Giáng Sinh</title>
+<meta name="theme-color" content="#c62828">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,Helvetica,sans-serif;background:url('https://images.unsplash.com/photo-1543589077-47d81606c1bf?auto=format&fit=crop&w=1600&q=80') center/cover fixed;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+.card{background:linear-gradient(135deg,rgba(255,0,0,.35),rgba(0,128,0,.35));padding:20px;border-radius:16px;width:90%;max-width:480px;text-align:center;animation:lights 2s infinite alternate;}
+@keyframes lights{0%{box-shadow:0 0 10px red}50%{box-shadow:0 0 20px gold}100%{box-shadow:0 0 10px green}}
+.timer{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0;}
+.box{background:rgba(255,255,255,.15);border-radius:12px;padding:12px 6px}
+.num{font-size:1.8rem;font-weight:bold}
+.label{font-size:0.8rem}
+#tree{font-size:50px;animation:shake 2s infinite;margin:10px 0;}
+@keyframes shake{0%{transform:rotate(0)}25%{transform:rotate(2deg)}75%{transform:rotate(-2deg)}100%{transform:rotate(0)}}
+.snowflake{position:fixed;top:-10px;color:white;animation:fall linear}
+@keyframes fall{to{transform:translateY(110vh)}}
+.firework{position:fixed;font-size:24px;animation:boom 1.2s ease-out forwards}
+@keyframes boom{0%{transform:scale(0);opacity:1}100%{transform:scale(2.5);opacity:0}}
+#santa{position:fixed;top:15%;left:-300px;font-size:48px;animation:santaFly 18s linear infinite}
+@keyframes santaFly{to{left:110%}}
+button#musicBtn{margin-bottom:10px;padding:8px 14px;border-radius:20px;border:none;font-weight:bold;font-size:0.9rem;cursor:pointer;}
+footer{margin-top:12px;font-size:0.85rem;opacity:0.85;}
+</style>
+</head>
+<body>
+
+<audio id="bgm" loop src="https://cdn.pixabay.com/download/audio/2022/10/30/audio_4e35b88b36.mp3"></audio>
+
+<div class="card">
+  <button id="musicBtn">🔊 Bật nhạc</button>
+  <h1>🎄 Đếm ngược Giáng Sinh</h1>
+  <div id="tree">🎄</div>
+
+  <div class="timer">
+    <div class="box"><div id="days" class="num">0</div><div class="label">Ngày</div></div>
+    <div class="box"><div id="hours" class="num">0</div><div class="label">Giờ</div></div>
+    <div class="box"><div id="minutes" class="num">0</div><div class="label">Phút</div></div>
+    <div class="box"><div id="seconds" class="num">0</div><div class="label">Giây</div></div>
+  </div>
+
+  <div id="viewer" style="margin:8px 0;font-size:0.9rem;">👀 Đang tính...</div>
+  <div id="status"></div>
+  <footer>✨ Chúc bạn Giáng Sinh vui vẻ ✨</footer>
+</div>
+
+<div id="santa">🎅🦌🦌🦌</div>
+
+<script>
+// ===== TARGET DATE =====
+const TARGET = (() => { const now = new Date(); let d = new Date(now.getFullYear(),11,25,0,0,0); if(d < now) d.setFullYear(d.getFullYear()+1); return d; })();
+
+// ===== COUNTDOWN =====
+function updateCountdown(){
+  const now = new Date();
+  const diff = TARGET - now;
+  if(diff <= 0){
+    document.querySelector(".card").innerHTML = "<h1>🎄 Giáng Sinh đã đến!</h1><p>Chúc mừng Giáng Sinh!</p>";
+    fireworks();
+    notifyChristmas();
+    return;
+  }
+  document.getElementById("days").textContent = Math.floor(diff/86400000);
+  document.getElementById("hours").textContent = Math.floor(diff/3600000)%24;
+  document.getElementById("minutes").textContent = Math.floor(diff/60000)%60;
+  document.getElementById("seconds").textContent = Math.floor(diff/1000)%60;
+  document.getElementById("status").textContent = "⏰ " + now.toLocaleTimeString();
+}
+updateCountdown();
+setInterval(updateCountdown,1000);
+
+// ===== FIREWORK =====
+function fireworks(){
+  for(let i=0;i<40;i++){
+    const f=document.createElement("div");
+    f.className="firework";
+    f.textContent="🎆";
+    f.style.left=Math.random()*innerWidth+"px";
+    f.style.top=Math.random()*innerHeight+"px";
+    document.body.appendChild(f);
+    setTimeout(()=>f.remove(),1200);
+  }
+}
+
+// ===== SNOW =====
+setInterval(()=>{
+  const s=document.createElement("div");
+  s.className="snowflake";
+  s.textContent="❄";
+  s.style.left=Math.random()*innerWidth+"px";
+  s.style.fontSize=10+Math.random()*10+"px";
+  s.style.animationDuration=5+Math.random()*5+"s";
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),10000);
+},200);
+
+// ===== MUSIC =====
+const musicBtn=document.getElementById("musicBtn");
+const bgm=document.getElementById("bgm");
+musicBtn.onclick=()=>{
+  if(bgm.paused){ bgm.play(); musicBtn.textContent="🔇 Tắt nhạc"; }
+  else{ bgm.pause(); musicBtn.textContent="🔊 Bật nhạc"; }
+};
+
+// ===== NGƯỜI XEM GIẢ =====
+const viewerEl = document.getElementById("viewer");
+let viewers = Math.floor(Math.random()*5)+1;
+viewerEl.textContent = `👀 Đang có ${viewers} người xem`;
+setInterval(()=>{
+  const change = Math.floor(Math.random()*3)-1;
+  viewers = Math.max(1, viewers+change);
+  viewerEl.textContent = `👀 Đang có ${viewers} người xem`;
+},4000);
+
+// ===== NOTIFICATION =====
+function notifyChristmas(){
+  if(!("Notification" in window)) return;
+  if(Notification.permission==="granted"){
+    new Notification("🎄 Giáng Sinh đã đến!",{
+      body:"Chúc mừng Giáng Sinh! 🎉",
+      icon:"https://cdn-icons-png.flaticon.com/512/3468/3468377.png"
+    });
+  } else if(Notification.permission!=="denied"){
+    Notification.requestPermission().then(p=>{
+      if(p==="granted"){
+        new Notification("🎄 Giáng Sinh đã đến!",{
+          body:"Chúc mừng Giáng Sinh! 🎉",
+          icon:"https://cdn-icons-png.flaticon.com/512/3468/3468377.png"
+        });
+      }
+    });
+  }
+}
+</script>
+</body>
+</html>
