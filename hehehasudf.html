@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+
+    <!-- =========================================================
+  LYRIC KARAOKE NEON – FULL PROJECT
+  Không cần nhạc
+  Chạy lyric từng chữ – mỗi chữ một màu
+  Nền sao bay + sương mờ
+========================================================= -->
+
+    <title>Lyric Karaoke Neon Full</title>
+
+    <style>
+        /* =========================================================
+   RESET & CƠ BẢN
+========================================================= */
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        /* =========================================================
+   CANVAS NỀN
+========================================================= */
+        
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
+        /* =========================================================
+   CONTAINER CHÍNH
+========================================================= */
+        
+        .container {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        /* =========================================================
+   LYRIC BOX
+========================================================= */
+        
+        #lyricBox {
+            padding: 30px 40px;
+            min-height: 160px;
+            font-size: 28px;
+            line-height: 1.9;
+            backdrop-filter: blur(3px);
+        }
+        /* =========================================================
+   CHỮ KARAOKE
+========================================================= */
+        
+        .char {
+            opacity: 0.25;
+            transition: opacity 0.12s ease;
+            text-shadow: 0 0 6px currentColor, 0 0 18px currentColor, 0 0 36px currentColor;
+        }
+        
+        .char.active {
+            opacity: 1;
+        }
+        /* =========================================================
+   HIỆU ỨNG NHẤP NHÁY NHẸ
+========================================================= */
+        
+        @keyframes pulse {
+            0% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.2);
+            }
+            100% {
+                filter: brightness(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================================================
+   CANVAS BACKGROUND
+========================================================= -->
+    <canvas id="starLayer"></canvas>
+    <canvas id="fogLayer"></canvas>
+
+    <!-- =========================================================
+   LYRIC
+========================================================= -->
+    <div class="container">
+        <div id="lyricBox"></div>
+    </div>
+
+    <script>
+        /* =========================================================
+           PHẦN 1 – TIỆN ÍCH
+        ========================================================= */
+        const rand = (min, max) => Math.random() * (max - min) + min;
+
+        /* =========================================================
+           PHẦN 2 – CANVAS SAO BAY (LAYER 1)
+        ========================================================= */
+        const starCanvas = document.getElementById("starLayer");
+        const starCtx = starCanvas.getContext("2d");
+
+        let sw, sh;
+        let stars = [];
+
+        function resizeCanvas() {
+            sw = starCanvas.width = window.innerWidth;
+            sh = starCanvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        function createStars(count) {
+            stars = [];
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: rand(0, sw),
+                    y: rand(0, sh),
+                    z: rand(0, sw),
+                    speed: rand(1, 3)
+                });
+            }
+        }
+        createStars(250);
+
+        function drawStars() {
+            starCtx.fillStyle = "rgba(0,0,0,0.45)";
+            starCtx.fillRect(0, 0, sw, sh);
+
+            for (let s of stars) {
+                s.z -= s.speed;
+                if (s.z <= 0) s.z = sw;
+
+                const k = 128 / s.z;
+                const px = (s.x - sw / 2) * k + sw / 2;
+                const py = (s.y - sh / 2) * k + sh / 2;
+                const size = (1 - s.z / sw) * 2;
+
+                starCtx.fillStyle = "#ffffff";
+                starCtx.fillRect(px, py, size, size);
+            }
+            requestAnimationFrame(drawStars);
+        }
+        drawStars();
+
+        /* =========================================================
+           PHẦN 3 – SƯƠNG MỜ (LAYER 2)
+        ========================================================= */
+        const fogCanvas = document.getElementById("fogLayer");
+        const fogCtx = fogCanvas.getContext("2d");
+
+        fogCanvas.width = sw;
+        fogCanvas.height = sh;
+
+        let fogOffset = 0;
+
+        function drawFog() {
+            fogCtx.clearRect(0, 0, sw, sh);
+            fogOffset += 0.3;
+
+            const grd = fogCtx.createLinearGradient(0, fogOffset, sw, sh);
+            grd.addColorStop(0, "rgba(255,255,255,0.03)");
+            grd.addColorStop(1, "rgba(255,255,255,0)");
+
+            fogCtx.fillStyle = grd;
+            fogCtx.fillRect(0, 0, sw, sh);
+
+            requestAnimationFrame(drawFog);
+        }
+        drawFog();
+
+        /* =========================================================
+           PHẦN 4 – DỮ LIỆU LỜI BÀI HÁT (FULL)
+        ========================================================= */
+        const lyrics = [
+            "Vai cơn nắng phiêu du theo làn khói mong manh",
+            "Là công chúa hay nàng tiên nữ ở trong tranh",
+            "Gió cuốn mây mang theo tình ta đến mây ngàn",
+            "Để anh hát cho em những giai điệu ngân vang",
+
+            "Nàng ơi em có muốn theo anh",
+            "Ta về chốn phương xa",
+            "Về một nơi yên bình mà chỉ có đôi ta",
+            "Là khe dông đưa trên cành cây chốn xa xăm",
+            "Em có muốn theo anh",
+            "Ta về chốn trăm năm",
+
+            "Em có biết là vài nụ hồng",
+            "Còn vương khi môi em cười",
+            "Nhưng em yên tâm khi mà",
+            "Anh yêu là anh xác định sẽ cưới",
+            "Anh hứa sẽ không bao giờ",
+            "Để giọt lệ trên mi em phải rơi",
+            "Và anh hứa sẽ không đánh mất",
+            "Em khi ta ở tuổi đôi mươi",
+
+            "Vài câu nói đường mật của anh",
+            "Có thể khiến em say đắm",
+            "Nhưng em có thấu cảm giác",
+            "Ngọt ngào khi đôi ta dần tay nắm",
+            "Anh thì không có gì",
+            "Ngoài một trái tim chân thành",
+            "Và em có muốn xây đắp tương lai",
+            "Ngôi nhà hạnh phúc cùng anh",
+
+            "Dù ngoài kia có bão có giông",
+            "Thì đã có anh ở đây rồi",
+            "Trầu cau nhà anh đã có sẵn",
+            "Chờ em yêu gật đầu một cái thôi",
+            "Anh đưa em về rồi",
+            "Chúng mình chung gối"
+        ];
+
+        /* =========================================================
+           PHẦN 5 – MÀU SẮC KARAOKE
+        ========================================================= */
+        const colors = [
+            "#38bdf8", "#f472b6", "#a7f3d0", "#fde047",
+            "#c084fc", "#fb7185", "#22d3ee", "#facc15",
+            "#4ade80", "#60a5fa"
+        ];
+
+        /* =========================================================
+           PHẦN 6 – LOGIC KARAOKE
+        ========================================================= */
+        const lyricBox = document.getElementById("lyricBox");
+        let lineIndex = 0;
+
+        function showLine() {
+            lyricBox.innerHTML = "";
+            const text = lyrics[lineIndex];
+            const chars = text.split("");
+
+            chars.forEach((ch, i) => {
+                const span = document.createElement("span");
+                span.textContent = ch;
+                span.className = "char";
+                span.style.color = colors[i % colors.length];
+                lyricBox.appendChild(span);
+            });
+
+            const spans = lyricBox.querySelectorAll(".char");
+            spans.forEach((sp, i) => {
+                setTimeout(() => sp.classList.add("active"), i * 65);
+            });
+
+            lineIndex++;
+            if (lineIndex >= lyrics.length) {
+                setTimeout(() => {
+                    lineIndex = 0;
+                    showLine();
+                }, 2500);
+            } else {
+                setTimeout(showLine, chars.length * 65 + 1400);
+            }
+        }
+
+        setTimeout(showLine, 1000);
+    </script>
+
+</body>
+
+</html>
